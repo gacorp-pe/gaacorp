@@ -1432,8 +1432,26 @@
 @media(max-width:760px){.gacorp-map-wrap{padding:12px}.gacorp-map-legend{grid-template-columns:repeat(2,minmax(0,1fr))}.okr-input-row{grid-template-columns:1fr}.gacorp-map .land-number{font-size:28px}}
 
 
-.gacorp-edit-toggle{position:fixed;right:18px;bottom:18px;z-index:50;background:#e20713;color:#fff;border:2px solid #ffdc4d;border-radius:999px;padding:12px 17px;font:800 12px Inter,sans-serif;box-shadow:0 8px 24px rgba(3,33,57,.25);cursor:pointer}
-.gacorp-edit-toggle.editing{background:#ffdc4d;color:#032139}
+.gacorp-edit-tools{position:fixed;right:24px;bottom:24px;z-index:1000;display:grid;justify-items:end;gap:8px;max-width:calc(100vw - 32px)}
+.gacorp-edit-actions{display:flex;align-items:center;gap:6px;padding:6px;background:#032139;border:1px solid #36516a;border-radius:16px;box-shadow:0 8px 25px #0321393d}
+.gacorp-edit-actions[hidden]{display:none}
+.gacorp-edit-toggle,.gacorp-add-note,.gacorp-add-image{border:0;font:700 13px Inter,sans-serif;cursor:pointer;transition:background-color .15s,box-shadow .15s}
+.gacorp-edit-toggle{display:grid;place-items:center;width:62px;height:62px;border-radius:50%;background:#032139;color:#ffdc4d;box-shadow:0 8px 25px #0321394d}
+.gacorp-edit-toggle:hover{background:#163a58}
+.gacorp-edit-toggle svg{width:31px;height:31px}
+.gacorp-edit-toggle.editing{width:auto;height:44px;padding:0 17px;border-radius:999px;background:#ffdc4d;color:#032139}
+.gacorp-edit-toggle.editing:hover{background:#ffe680}
+.gacorp-edit-buttons{display:flex;align-items:center;gap:8px}
+.gacorp-edit-cancel{height:44px;padding:0 14px;border:1px solid #36516a;border-radius:999px;background:#032139;color:#fff;font:700 13px Inter,sans-serif;cursor:pointer}
+.gacorp-edit-cancel[hidden]{display:none}
+.gacorp-edit-cancel:hover{background:#245476}
+.gacorp-add-note,.gacorp-add-image{height:42px;border-radius:10px;background:#163a58;color:white}
+.gacorp-add-note{padding:0 13px;white-space:nowrap}
+.gacorp-add-note:hover,.gacorp-add-image:hover{background:#245476}
+.gacorp-add-image{display:grid;place-items:center;width:44px;color:#ffdc4d}
+.gacorp-add-image svg{width:23px;height:23px}
+.gacorp-edit-tools button:focus-visible{outline:2px solid #ffdc4d;outline-offset:3px}
+.gacorp-edit-tools button:disabled{opacity:.55;cursor:wait}
 body.gacorp-editing .content-section.active h2,body.gacorp-editing .content-section.active h3,body.gacorp-editing .content-section.active h4,body.gacorp-editing .content-section.active p,body.gacorp-editing .content-section.active li{outline:1px dashed rgba(226,7,19,.25);outline-offset:2px}
 
 /* Mejoras solicitadas: inventario editable por proyecto y acceso OKR 1.2 */
@@ -1452,8 +1470,52 @@ body.gacorp-editing .content-section.active h2,body.gacorp-editing .content-sect
   #gacorpInteractiveMap [data-map-seg]:focus .land-segment{stroke:#e20713;stroke-width:7}
   .gacorp-editable{outline:1px dashed rgba(226,7,19,.55);outline-offset:2px;cursor:text}
   .gacorp-editable:focus{outline:2px solid #e20713;background:#fffbe8}
-  .gacorp-add-note{position:fixed;right:28px;bottom:82px;z-index:9999;background:#032139;color:#fff;border:1px solid #ffdc4d;border-radius:24px;padding:12px 18px;font-weight:700;box-shadow:0 8px 24px #03213933}
-  .gacorp-user-note{padding:12px;background:#fff8d8;border-left:3px solid #e20713;border-radius:5px}
+  .gacorp-note-block{display:flex;align-items:start;gap:10px;margin:12px 0;padding:12px;background:#fff8d8;border-left:3px solid #e20713;border-radius:5px}
+  .gacorp-user-note{flex:1;min-width:0;min-height:1.4em;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+  .gacorp-user-note:empty[contenteditable]::before{content:'Escribe aquí tu nota…';color:#6b624d;pointer-events:none}
+  .gacorp-note-delete{display:none;width:34px;height:34px;flex:none;place-items:center;border:0;border-radius:8px;background:#fff;color:#a81324;cursor:pointer}
+  .gacorp-editing .gacorp-note-delete{display:grid}
+  .gacorp-note-delete:hover{background:#ffe3e5}
+  .gacorp-note-delete svg{width:18px;height:18px}
+  .gacorp-card-add,.gacorp-card-options{display:none}
+  .gacorp-editing .gacorp-card-add{display:grid;place-items:center;min-height:88px;padding:12px;border:1px dashed #7d8e9e;border-radius:12px;background:#f5f8fb;color:#032139;font:700 13px Inter,sans-serif;cursor:pointer}
+  .gacorp-editing .gacorp-card-add:hover{border-color:#032139;background:#fff5cc}
+  .gacorp-editing .gacorp-card-options{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}
+  .gacorp-card-options select,.gacorp-card-options button{max-width:100%;padding:5px 7px;border:1px solid #a5b5c3;border-radius:6px;background:#fff;color:#032139;font:600 12px Inter,sans-serif}
+  .gacorp-card-options button{cursor:pointer}
+  .gacorp-custom-card{min-width:0;overflow-wrap:anywhere}
+  .gacorp-custom-card [data-card-text]{white-space:pre-wrap}
+  .gacorp-custom-card [data-card-text]:empty[contenteditable]::before{content:attr(data-placeholder);opacity:.7;pointer-events:none}
+  .gacorp-card-icon{display:block;margin-bottom:6px;font-size:21px;line-height:1}
+  .gacorp-card-icon[hidden]{display:none}
+  .gacorp-custom-card[data-custom-color]{background:var(--card-color);color:var(--card-ink)}
+  .gacorp-custom-card[data-custom-color] :is(h3,p,.tag,.vc-name,.gacorp-card-icon){color:var(--card-ink)}
+  .gacorp-theme-dialog{width:min(420px,calc(100% - 32px));max-width:none;padding:22px;border:1px solid #cdd7e0;border-radius:16px;background:#fff;color:#032139;box-shadow:0 18px 50px #0321394d}
+  .gacorp-theme-dialog::backdrop{background:#03213980}
+  .gacorp-theme-dialog form,.gacorp-theme-swatches{display:grid;gap:10px}
+  .gacorp-theme-dialog h2{margin:0;color:inherit;font-size:21px}
+  .gacorp-theme-swatches label{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;font-weight:600}
+  .gacorp-theme-dialog input[type="color"],.gacorp-card-options input[type="color"]{width:38px;height:30px;padding:2px;border:1px solid #a5b5c3;border-radius:6px;background:#fff;cursor:pointer}
+  .gacorp-theme-dialog select,.gacorp-theme-dialog button{padding:8px 10px;border:1px solid #a5b5c3;border-radius:8px;background:#fff;color:#032139;font:600 13px Inter,sans-serif}
+  .gacorp-theme-dialog button{cursor:pointer}
+  .gacorp-theme-dialog button[type="submit"]{background:#ffdc4d;border-color:#ffdc4d}
+  .gacorp-theme-buttons{display:flex;justify-content:space-between;gap:8px;margin-top:6px}
+  .gacorp-colored-section{background:var(--paper-50)}
+  .gacorp-themed-text{color:var(--ink-900)}
+  .gacorp-themed-surface .content-section :is(.identity-card,.value-card,.strategic-card,.evo-summary-card),
+  .content-section.gacorp-themed-surface :is(.identity-card,.value-card,.strategic-card,.evo-summary-card){background-color:var(--white)}
+  .content-section .gacorp-custom-card[data-custom-color]{background-color:var(--card-color)}
+  .gacorp-user-image{display:block;max-width:100%;max-height:640px;width:auto;height:auto;margin:16px 0;border-radius:8px}
+  .gacorp-image-control{display:none}
+  .gacorp-editing .gacorp-image-control{display:inline-flex;align-items:center;padding:7px 10px;border:1px solid #36516a;border-radius:8px;background:#032139;color:#ffdc4d;font:700 12px Inter,sans-serif;cursor:pointer}
+  .gacorp-image-parent{position:relative}
+  .gacorp-image-parent > .gacorp-image-control{position:absolute;top:8px;right:8px;z-index:2}
+  .gacorp-image-preview{display:block;width:100%;max-height:210px;object-fit:contain;border-radius:9px}
+  .gacorp-image-dialog label{display:grid;gap:6px;font-size:14px;font-weight:600}
+  .gacorp-image-dialog :is(select,input){min-width:0;width:100%}
+  .gacorp-image-dialog [hidden]{display:none}
+  #sidebar .gacorp-editable:focus{color:#032139}
+  body:not(.gacorp-authenticated) .gacorp-edit-control{display:none!important}
 
 
 .peyea-inputs input[type=number]{width:88px;padding:8px;border:1px solid var(--line-300);border-radius:6px;font:600 14px Inter;color:var(--navy-950);background:#fff}
@@ -1473,8 +1535,6 @@ body.gacorp-global-edit [contenteditable=true]{outline:1px dashed #e20713;outlin
 
 
 /* Toolbar único y adaptable: evita superposición de controles flotantes */
-.gacorp-edit-toggle{position:fixed;right:18px;bottom:18px;z-index:100001;max-width:calc(100vw - 36px);white-space:nowrap}
-.gacorp-add-note{position:fixed;right:18px;bottom:76px;z-index:100001;max-width:calc(100vw - 36px)}
 .gacorp-delete-selected{position:fixed;right:18px;bottom:132px;z-index:100001;background:#032139;color:#fff;border:0;border-radius:24px;padding:11px 16px;font-weight:700;box-shadow:0 5px 18px #03213922}
 .gacorp-row-tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 .gacorp-row-tools button,.gacorp-add-row{border:0;border-radius:8px;padding:9px 12px;background:#032139;color:#fff;font-weight:700;cursor:pointer}
@@ -1483,8 +1543,7 @@ body.gacorp-global-edit [contenteditable=true]{outline:1px dashed #e20713;outlin
 .gacorp-factor-input{width:100%;min-width:140px;padding:6px;border:1px solid var(--line-300);border-radius:5px}
 .gacorp-foda-add{margin-top:10px}
 @media(max-width:600px){
- .gacorp-edit-toggle{right:10px;bottom:10px;padding:10px 13px;font-size:11px}
- .gacorp-add-note{right:10px;bottom:62px}
+ .gacorp-edit-tools{right:14px;bottom:calc(14px + env(safe-area-inset-bottom))}
  .gacorp-delete-selected{right:10px;bottom:114px}
  .gacorp-number-input{width:64px}
 }
@@ -1578,7 +1637,9 @@ body.gacorp-global-edit [contenteditable=true]{outline:1px dashed #e20713;outlin
 @media(max-width:560px){.persona-row{grid-template-columns:1fr;gap:2px}.persona-row .pv{padding-bottom:5px}}
 .proj-location-link{display:inline-flex;align-items:center;gap:6px;margin:0 0 12px;padding:8px 12px;border-radius:7px;background:#032139;color:#fff;text-decoration:none;font-size:12px;font-weight:700;border:1px solid #ffdc4d}
 .proj-location-link:hover{background:#0b3a5c}
-</style></head>
+</style>
+<script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.3/dist/sweetalert2.all.min.js"></script>
+</head>
 <body>
 <div id="authGate">
 <!-- ---- PANTALLA 1: presentación formal ---- -->
@@ -1624,8 +1685,8 @@ body.gacorp-global-edit [contenteditable=true]{outline:1px dashed #e20713;outlin
 </div>
 </div>
 <div class="plan-meta">
-      Gacorp Hub — <strong>ciclo 2026</strong><br/>
-      Curso de Planificación Estratégica · 8vo ciclo
+      <span data-sidebar-text>Gacorp Hub — <strong>ciclo 2026</strong></span><br/>
+      <span data-sidebar-text>Curso de Planificación Estratégica · 8vo ciclo</span>
       <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
 </div>
 <nav class="nav" id="nav">
@@ -1633,11 +1694,11 @@ body.gacorp-global-edit [contenteditable=true]{outline:1px dashed #e20713;outlin
 </nav>
 <button class="logout-btn" id="logoutBtn">
 <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></svg>
-      Cerrar sesión
+      <span data-sidebar-text>Cerrar sesión</span>
     </button>
 <div class="sidebar-footer">
-      Última actualización: semana 3<br/>
-      Se amplía cada lunes.
+      <span data-sidebar-text>Última actualización: semana 3</span><br/>
+      <span data-sidebar-text>Se amplía cada lunes.</span>
     </div>
 </aside>
 <div class="scrim" id="scrim"></div>
@@ -2254,6 +2315,49 @@ body.gacorp-global-edit [contenteditable=true]{outline:1px dashed #e20713;outlin
 </div>
 </div>
 <script>
+function gacorpAlert({title,text,icon,confirmButtonText='Aceptar',cancelButtonText}){
+ if(window.Swal)return window.Swal.fire({
+  titleText:title,text,icon,confirmButtonText,cancelButtonText,
+  showCancelButton:Boolean(cancelButtonText),focusCancel:Boolean(cancelButtonText)
+ }).then(result=>result.isConfirmed);
+ const dialog=document.createElement('dialog');
+ dialog.className='gacorp-theme-dialog';
+ dialog.setAttribute('aria-label',title);
+ const form=document.createElement('form');
+ form.method='dialog';
+ const heading=document.createElement('h2');
+ heading.textContent=title;
+ form.appendChild(heading);
+ if(text){
+  const message=document.createElement('p');
+  message.textContent=text;
+  form.appendChild(message);
+ }
+ const actions=document.createElement('div');
+ actions.className='gacorp-theme-buttons';
+ for(const [label,value] of [[cancelButtonText,'cancel'],[confirmButtonText,'confirm']]){
+  if(!label)continue;
+  const button=document.createElement('button');
+  button.type='submit';
+  button.value=value;
+  button.textContent=label;
+  if(value==='cancel')button.autofocus=true;
+  actions.appendChild(button);
+ }
+ form.appendChild(actions);
+ dialog.appendChild(form);
+ document.body.appendChild(dialog);
+ return new Promise(resolve=>{
+  dialog.addEventListener('close',()=>{
+   dialog.remove();
+   resolve(dialog.returnValue==='confirm');
+  },{once:true});
+  dialog.showModal();
+ });
+}
+function gacorpConfirmDelete(title,text){
+ return gacorpAlert({title,text,icon:'warning',confirmButtonText:'Sí, eliminar',cancelButtonText:'Cancelar'});
+}
 /* Inicio de sesión independiente: debe funcionar aunque falle algún módulo secundario. */
 (function(){
   const VALID_USER = 'Gacorp2026';
@@ -2266,15 +2370,33 @@ body.gacorp-global-edit [contenteditable=true]{outline:1px dashed #e20713;outlin
   const userInput = byId('loginUser');
   const passInput = byId('loginPass');
   const errorBox = byId('loginError');
+  const sessionKey = 'gacorp-auth-session';
+  function showApp(){
+    errorBox.classList.remove('show');
+    authGate.classList.add('hidden');
+    appShell.style.display = 'flex';
+    document.body.classList.add('gacorp-authenticated');
+  }
+  function logout(){
+    try{sessionStorage.removeItem(sessionKey);}catch(e){}
+    appShell.style.display = 'none';
+    document.body.classList.remove('gacorp-authenticated');
+    authGate.classList.remove('hidden');
+    loginScreen.style.display = 'block';
+    coverScreen.style.display = 'none';
+    errorBox.classList.remove('show');
+    userInput.value = '';
+    passInput.value = '';
+  }
+  try{if(sessionStorage.getItem(sessionKey)==='active')showApp();}catch(e){}
   window.gacorpAttemptLogin = function(){
     const u = (userInput.value || '').trim();
     const p = passInput.value || '';
     if (u.toLowerCase() === VALID_USER.toLowerCase() && p === VALID_PASS) {
-      errorBox.classList.remove('show');
-      authGate.classList.add('hidden');
-      appShell.style.display = 'flex';
-      document.body.classList.add('gacorp-authenticated');
+      try{sessionStorage.setItem(sessionKey,'active');}catch(e){}
+      showApp();
       window.dispatchEvent(new Event('gacorp:login-success'));
+      gacorpAlert({icon:'success',title:'Bienvenido a Gacorp',confirmButtonText:'Continuar'});
     } else {
       errorBox.textContent = 'Usuario o contraseña incorrectos. Verifica que estén escritos exactamente como se indican.';
       errorBox.classList.add('show');
@@ -2294,7 +2416,7 @@ body.gacorp-global-edit [contenteditable=true]{outline:1px dashed #e20713;outlin
     errorBox.classList.remove('show'); userInput.value = ''; passInput.value = '';
   });
   // Exponer referencias para que el botón de cerrar sesión pueda restaurar la pantalla.
-  window.gacorpAuth = {authGate, coverScreen, loginScreen, appShell, userInput, passInput, errorBox};
+  window.gacorpAuth = {logout};
 })();
 </script>
 <script>
@@ -2447,7 +2569,7 @@ const PROJECTS = [
 
 const GACORP_STOCK_KEY='gacorp_project_stock_v1';
 function getProjectStock(id){try{const all=JSON.parse(localStorage.getItem(GACORP_STOCK_KEY)||'{}');return all[id]||{available:0,sold:0}}catch(e){return {available:0,sold:0}}}
-function saveProjectStock(id,available,sold){try{const all=JSON.parse(localStorage.getItem(GACORP_STOCK_KEY)||'{}');all[id]={available:Math.max(0,parseInt(available||0,10)||0),sold:Math.max(0,parseInt(sold||0,10)||0)};localStorage.setItem(GACORP_STOCK_KEY,JSON.stringify(all));return true}catch(e){alert('No se pudo guardar el inventario en este navegador.');return false}}
+function saveProjectStock(id,available,sold){try{const all=JSON.parse(localStorage.getItem(GACORP_STOCK_KEY)||'{}');all[id]={available:Math.max(0,parseInt(available||0,10)||0),sold:Math.max(0,parseInt(sold||0,10)||0)};localStorage.setItem(GACORP_STOCK_KEY,JSON.stringify(all));return true}catch(e){gacorpAlert({icon:'error',title:'No se pudo guardar el inventario en este navegador.'});return false}}
 function renderProjects(filter, term, targetId){
   const grid = document.getElementById(targetId || 'projectGrid');
   if(!grid) return;
@@ -2456,6 +2578,7 @@ function renderProjects(filter, term, targetId){
   PROJECTS.filter(p => (filter==='todos' || !filter || p.stage===filter) && p.name.toLowerCase().includes(term)).forEach(p=>{
     const card = document.createElement('div');
     card.className = 'proj-card';
+    card.dataset.projectId = p.id;
     card.innerHTML = `
       <div class="proj-cover" style="background-image:linear-gradient(180deg, rgba(3,33,57,0.15), rgba(3,33,57,0.85)), url('${p.image}');">
         <span class="proj-ref">Proyecto GACORP</span>
@@ -2463,7 +2586,7 @@ function renderProjects(filter, term, targetId){
         <h4>${p.name}</h4>
       </div>
       <div class="proj-body">
-        <div class="proj-loc">${NAV_ICONS.proyectos.replace('nav-icon','')}${p.location.split('—')[0].trim()}</div>
+        <div class="proj-loc">${NAV_ICONS.proyectos.replace('nav-icon','')}<span>${p.location.split('—')[0].trim()}</span></div>
         <p class="proj-desc">${p.desc}</p>
         <a class="proj-location-link" href="${p.locationUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" ${p.locationUrl?'':'aria-disabled="true"'}>Ver ubicación en Google Maps ↗</a>
         <div class="proj-meta"><div><b>${p.code}</b>Código</div><div><b>${p.stage==='preventa'?'Preventa':'Venta'}</b>Estado</div></div>
@@ -2474,9 +2597,12 @@ function renderProjects(filter, term, targetId){
           <small class="tiny" style="grid-column:1/-1">Datos editables · guardados en este navegador</small>
         </div>
       </div>`;
-    card.addEventListener('click', ()=>openProjectModal(p.id));
+    card.addEventListener('click', event=>{
+      if(!event.target.closest('.gacorp-editable')) openProjectModal(p.id);
+    });
     grid.appendChild(card);
   });
+  document.dispatchEvent(new CustomEvent('gacorp:projects-rendered', {detail:grid}));
 }
 
 document.addEventListener('click',function(e){const btn=e.target.closest('[data-save-stock]');if(!btn)return;e.preventDefault();e.stopPropagation();const id=btn.getAttribute('data-save-stock');const wrap=btn.closest('[data-project-stock]');if(!wrap)return;const available=wrap.querySelector('[data-stock="available"]').value;const sold=wrap.querySelector('[data-stock="sold"]').value;if(saveProjectStock(id,available,sold)){btn.textContent='Inventario guardado ✓';setTimeout(()=>{if(btn.isConnected)btn.textContent='Guardar inventario'},1600)}},true);
@@ -2492,6 +2618,7 @@ function openProjectModal(id){
       <div style="font-size:12.5px;color:#B9C7D3;">Código ${p.code}</div>
     </div>
     <div class="modal-body">
+      <button class="gacorp-image-control" type="button">Cambiar imagen</button>
       <div class="mrow"><div class="mk">Descripción</div><div class="mv">${p.desc}</div></div>
       <div class="mrow"><div class="mk">Propuesta de valor</div><div class="mv">${p.valueProp}</div></div>
       <div class="mrow"><div class="mk">Ubicación</div><div class="mv">${p.location}</div></div>
@@ -2506,6 +2633,7 @@ function openProjectModal(id){
       ${!hasLoc ? '<p style="font-size:12px;color:var(--ink-400);margin-top:10px;">Ubicación pendiente — agrega el enlace real en <code>PROJECTS.'+p.id+'.locationUrl</code>.</p>' : ''}
     </div>`;
   document.getElementById('projModalScrim').classList.add('show');
+  document.dispatchEvent(new CustomEvent('gacorp:project-modal',{detail:id}));
 }
 function closeProjectModal(){ document.getElementById('projModalScrim').classList.remove('show'); }
 
@@ -2718,11 +2846,13 @@ function navigate(id){
 
   if(id==='comercial') setTimeout(initComercialCharts, 50);
   if(id==='inicio') setTimeout(initDashboardChart, 50);
+  document.dispatchEvent(new Event('gacorp:section-changed'));
 }
 
 // ---- progress ----
 const doneN = allItems.filter(i=>i.status==='done').length;
-document.getElementById('doneCount').textContent = doneN+'/'+allItems.length;
+const doneCountEl = document.getElementById('doneCount');
+if(doneCountEl) doneCountEl.textContent = doneN+'/'+allItems.length;
 document.getElementById('progressFill').style.width = Math.round(doneN/allItems.length*100)+'%';
 const statsAvanceEl = document.getElementById('statsAvance');
 if(statsAvanceEl) statsAvanceEl.textContent = doneN+'/'+allItems.length+' módulos';
@@ -2924,14 +3054,7 @@ document.querySelectorAll('[data-quick]').forEach(el=>{
 // ---- cerrar sesión ----
 const logoutBtnEl = document.getElementById('logoutBtn');
 if(logoutBtnEl) logoutBtnEl.addEventListener('click', ()=>{
-  appShell.style.display = 'none';
-  const auth = window.gacorpAuth;
-  auth.authGate.classList.remove('hidden');
-  auth.loginScreen.style.display = 'block';
-  auth.coverScreen.style.display = 'none';
-  auth.errorBox.classList.remove('show');
-  auth.userInput.value = '';
-  auth.passInput.value = '';
+  window.gacorpAuth.logout();
   navigate('inicio');
 });
 
@@ -3008,33 +3131,560 @@ navigate(document.getElementById('sec-'+startId) ? startId : 'inicio');
   reset.appendChild(resetBtn);box.appendChild(reset);
  });
  // Edición amplia de contenido, guardado local y posibilidad de añadir notas.
+ const editTools=document.createElement('div');
+ editTools.className='gacorp-edit-tools gacorp-edit-control';
+ const editActions=document.createElement('div');
+ editActions.className='gacorp-edit-actions';
+ editActions.hidden=true;
+ const pencilIcon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5 4 4M4 20l4.5-1 11-11a2.8 2.8 0 0 0-4-4l-11 11L4 20Z"/></svg>';
  const editBtn=document.createElement('button');
  editBtn.type='button';editBtn.className='gacorp-edit-toggle';
- editBtn.textContent='✎ Editar información';document.body.appendChild(editBtn);
- let editing=false;const storageKey='gacorp-editable-sections-v2';
- try{const saved=JSON.parse(localStorage.getItem(storageKey)||'{}');Object.entries(saved).forEach(([id,content])=>{const sec=document.getElementById(id);if(sec && id!=='sec-objetivos')sec.innerHTML=content;});}catch(e){}
+ editBtn.innerHTML=pencilIcon;
+ editBtn.title='Editar información';
+ editBtn.setAttribute('aria-label',editBtn.title);
+ const cancelBtn=document.createElement('button');
+ cancelBtn.type='button';
+ cancelBtn.className='gacorp-edit-cancel';
+ cancelBtn.textContent='Cancelar edición';
+ cancelBtn.hidden=true;
+ const editButtons=document.createElement('div');
+ editButtons.className='gacorp-edit-buttons';
+ editButtons.append(cancelBtn,editBtn);
+ let editing=false;
+ const storageKey='gacorp-content-edits-v1';
+ function readEdits(){
+  try{return JSON.parse(localStorage.getItem(storageKey)||'{}')||{};}catch(e){return {};}
+ }
+ let saved=readEdits();
+ try{
+  const legacy=JSON.parse(localStorage.getItem('gacorp-editable-sections-v2')||'{}');
+  document.querySelectorAll('.content-section:not(#sec-objetivos)').forEach(section=>{
+   if(typeof legacy[section.id]==='string')section.innerHTML=legacy[section.id];
+  });
+ }catch(e){}
  if(typeof renderProjects==='function'){renderProjects('todos','');renderProjects('todos','','dashProjectGrid');}
- const addBtn=document.createElement('button');addBtn.type='button';addBtn.className='gacorp-add-note';addBtn.textContent='+ Agregar texto';addBtn.style.display='none';document.body.appendChild(addBtn);
- const editableSelector='h1,h2,h3,h4,h5,p,li,td,th,label,small,strong,b,em,.lede,.subhead,.eyebrow,.proj-desc,.proj-loc,.proj-meta,.card,.strategic-card,.callout,.pillar .v,.pillar .k,.scenario p,.value-card .vc-name';
+ const addBtn=document.createElement('button');addBtn.type='button';addBtn.className='gacorp-add-note';addBtn.textContent='+ Agregar texto';
+ const imageBtn=document.createElement('button');
+ imageBtn.type='button';
+ imageBtn.className='gacorp-add-image';
+ imageBtn.title='Subir imagen';
+ imageBtn.setAttribute('aria-label','Subir imagen');
+ imageBtn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m3 16 5-5 4 4 3-3 6 6"/><circle cx="16" cy="8" r="1"/></svg>';
+ const themeBtn=document.createElement('button');
+ themeBtn.type='button';
+ themeBtn.className='gacorp-add-image';
+ themeBtn.title='Colores';
+ themeBtn.setAttribute('aria-label',themeBtn.title);
+ themeBtn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18h1a1.6 1.6 0 0 0 1-2.8 1.7 1.7 0 0 1 1-3h2a4 4 0 0 0 4-4c0-4.5-4-8.2-9-8.2Z"/><path d="M7.5 11h.01M9.5 7.5h.01M14 7h.01M17 10h.01" stroke-width="2.5"/></svg>';
+ editActions.append(addBtn,imageBtn,themeBtn);
+ editTools.append(editActions,editButtons);
+ document.body.appendChild(editTools);
+ const editableSelector='h1,h2,h3,h4,h5,p,li,td,th,label,small,.lede,.subhead,.eyebrow,.pillar .v,.pillar .k,.value-card .vc-name,.proj-loc span,.proj-meta b';
+ const excluded='button,a,svg,script,style,[data-map-seg],#gm-objectives-manager,.okr-metric,.project-stock,.gacorp-user-note';
+ const drafts=new Map();
+ const originalFields=new Map();
+ let originalNotes;
+ function fields(root){
+  return [...root.querySelectorAll(editableSelector)].filter(el=>
+   !el.closest(excluded)&&!el.querySelector('a,input,select,textarea,button,canvas,svg,'+editableSelector)
+  );
+ }
+ function registerFields(key,elements){
+  elements.forEach((element,index)=>{
+   const id=key+':'+index;
+   element.dataset.gacorpField=id;
+   const value=saved.fields?.[id];
+   if(typeof value==='string')element.innerText=value;
+   if(editing)originalFields.set(element,element.innerHTML);
+   if(drafts.has(id))element.innerText=drafts.get(id);
+  });
+ }
+ function registerProjects(grid){
+  grid.querySelectorAll('[data-project-id]').forEach(card=>
+   registerFields('project:'+card.dataset.projectId,fields(card))
+  );
+ }
+ function appendImage(section,src,alt,anchorKey=''){
+  const image=document.createElement('img');
+  image.className='gacorp-user-image';
+  image.src=src;
+  image.alt=alt;
+  image.dataset.imageAnchor=anchorKey;
+  const anchor=[...section.children].find(child=>child.dataset.imagePlacement===anchorKey);
+  if(!anchor){section.appendChild(image);return image;}
+  let previous=anchor;
+  while(previous.nextElementSibling?.dataset.imageAnchor===anchorKey)previous=previous.nextElementSibling;
+  previous.after(image);
+  return image;
+ }
+ function appendNote(section,text,position){
+  const block=document.createElement('div');
+  block.className='gacorp-note-block';
+  block.dataset.position=position==='start'?'start':'end';
+  const note=document.createElement('p');
+  note.className='gacorp-user-note';
+  note.textContent=text;
+  const remove=document.createElement('button');
+  remove.type='button';
+  remove.className='gacorp-note-delete';
+  remove.title='Eliminar nota';
+  remove.setAttribute('aria-label',remove.title);
+  remove.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v5m4-5v5"/></svg>';
+  remove.addEventListener('click',async()=>{
+   if(!editing||!await gacorpConfirmDelete('¿Eliminar esta nota?','La eliminación se aplicará al guardar los cambios.'))return;
+   block.remove();
+   addBtn.focus();
+  });
+  block.append(note,remove);
+  if(block.dataset.position==='start'){
+   section.insertBefore(block,section.querySelector(':scope > :not(.gacorp-note-block[data-position="start"])'));
+  }else section.appendChild(block);
+  return note;
+ }
+ const sections=[...document.querySelectorAll('.content-section[id]')];
+ const validImageSource=src=>typeof src==='string'&&src.startsWith('data:image/webp;base64,');
+ let imageReplacements={...saved.imageReplacements};
+ const originalImages=new Map();
+ function applyImageReplacements(){
+  originalImages.forEach(({image,src},key)=>{image.src=imageReplacements[key]||src;});
+  document.querySelectorAll('[data-project-id]').forEach(card=>{
+   const id=card.dataset.projectId;
+   const source=imageReplacements['project:'+id]||PROJECTS.find(project=>project.id===id)?.image;
+   if(source)card.querySelector('.proj-cover').style.backgroundImage=`linear-gradient(180deg, rgba(3,33,57,0.15), rgba(3,33,57,0.85)), url('${source}')`;
+  });
+ }
+ const main=document.querySelector('#appShell .main');
+ const paletteFields={
+  '--paper-50':'Fondo',
+  '--white':'Tarjetas',
+  '--ink-900':'Texto',
+  '--navy-950':'Títulos',
+  '--red-600':'Acento principal',
+  '--yellow-500':'Acento secundario'
+ };
+ const colorPattern=/^#[0-9a-f]{6}$/i;
+ let theme=structuredClone(saved.theme||{});
+ function applyPalette(element,palette={}){
+  for(const key of Object.keys(paletteFields)){
+   const color=palette[key];
+   if(colorPattern.test(color))element.style.setProperty(key,color);
+   else element.style.removeProperty(key);
+  }
+  const hasTextColor=colorPattern.test(palette['--ink-900']);
+  element.style.setProperty('--ink-600',hasTextColor?'var(--ink-900)':'');
+  element.classList.toggle('gacorp-themed-text',hasTextColor);
+  element.classList.toggle('gacorp-themed-surface',colorPattern.test(palette['--white']));
+  element.classList.toggle('gacorp-colored-section',colorPattern.test(palette['--paper-50']));
+ }
+ function applyTheme(){
+  applyPalette(main,theme.global);
+  for(const section of sections)applyPalette(section,theme.sections?.[section.id]);
+ }
+ applyTheme();
+ const themeDialog=document.createElement('dialog');
+ themeDialog.className='gacorp-theme-dialog';
+ themeDialog.setAttribute('aria-labelledby','gacorp-theme-title');
+ themeDialog.innerHTML='<form method="dialog"><h2 id="gacorp-theme-title">Colores</h2><label>Aplicar a <select><option value="global">Toda la página</option><option value="section">Sección actual</option></select></label><div class="gacorp-theme-swatches"></div><div class="gacorp-theme-buttons"><button type="button">Restaurar colores originales</button><button type="submit">Listo</button></div></form>';
+ document.body.appendChild(themeDialog);
+ const themeScope=themeDialog.querySelector('select');
+ const themeInputs=new Map();
+ let themeSection;
+ function previewTarget(){
+  return themeScope.value==='section'?themeSection:main;
+ }
+ function populateColorInputs(){
+  const styles=getComputedStyle(previewTarget());
+  themeInputs.forEach((input,key)=>{input.value=styles.getPropertyValue(key).trim();});
+ }
+ for(const [key,label] of Object.entries(paletteFields)){
+  const row=document.createElement('label');
+  row.textContent=label;
+  const input=document.createElement('input');
+  input.type='color';
+  input.addEventListener('input',()=>{
+   if(themeScope.value==='section'){
+    theme.sections??={};
+    theme.sections[themeSection.id]??={};
+    theme.sections[themeSection.id][key]=input.value;
+   }else{
+    theme.global??={};
+    theme.global[key]=input.value;
+   }
+   applyTheme();
+  });
+  row.appendChild(input);
+  themeInputs.set(key,input);
+  themeDialog.querySelector('.gacorp-theme-swatches').appendChild(row);
+ }
+ themeScope.addEventListener('change',populateColorInputs);
+ themeDialog.querySelector('button[type="button"]').addEventListener('click',()=>{
+  if(themeScope.value==='section')delete theme.sections?.[themeSection.id];
+  else delete theme.global;
+  applyTheme();
+  populateColorInputs();
+ });
+ themeBtn.addEventListener('click',()=>{
+  themeSection=document.querySelector('.content-section.active');
+  if(!themeSection)return;
+  themeScope.value='global';
+  populateColorInputs();
+  themeDialog.showModal();
+ });
+ const cardGrids=new Map();
+ const cardIcons={'':'Sin icono','★':'Estrella','✓':'Marca de verificación','⌂':'Casa','◆':'Rombo','⚑':'Bandera','●':'Círculo'};
+ function addCard(group,values={}){
+  const {grid,button,template}=group;
+  const card=document.createElement(template.tagName);
+  card.className=template.className;
+  card.classList.add('gacorp-custom-card');
+  const icon=document.createElement('span');
+  icon.className='gacorp-card-icon';
+  icon.setAttribute('aria-hidden','true');
+  const title=document.createElement(template.matches('.value-card,.scenario')?'div':'h3');
+  if(template.matches('.value-card'))title.className='vc-name';
+  if(template.matches('.scenario'))title.className='tag';
+  const description=document.createElement('p');
+  for(const [element,key,label] of [[title,'title','Título'],[description,'description','Descripción']]){
+   element.dataset.cardText=key;
+   element.dataset.placeholder=label;
+   element.textContent=values[key]||'';
+  }
+  const options=document.createElement('div');
+  options.className='gacorp-card-options';
+  const select=document.createElement('select');
+  select.setAttribute('aria-label','Icono de la tarjeta');
+  for(const [symbol,label] of Object.entries(cardIcons))select.add(new Option(symbol?symbol+' '+label:label,symbol));
+  select.value=Object.hasOwn(cardIcons,values.icon)?values.icon:'';
+  function showIcon(){
+   icon.textContent=select.value;
+   icon.hidden=!select.value;
+  }
+  select.addEventListener('change',showIcon);
+  showIcon();
+  const cardColor=document.createElement('input');
+  cardColor.type='color';
+  cardColor.value=colorPattern.test(values.color)?values.color:'#ffffff';
+  cardColor.setAttribute('aria-label','Color de la tarjeta');
+  function setCardColor(color){
+   if(colorPattern.test(color)){
+    const rgb=color.slice(1).match(/../g).map(part=>{
+     const channel=parseInt(part,16)/255;
+     return channel<=.04045?channel/12.92:((channel+.055)/1.055)**2.4;
+    });
+    const luminance=.2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2];
+    card.dataset.customColor=color;
+    card.style.setProperty('--card-color',color);
+    card.style.setProperty('--card-ink',luminance>.179?'#000':'#fff');
+   }else{
+    delete card.dataset.customColor;
+    card.style.removeProperty('--card-color');
+    card.style.removeProperty('--card-ink');
+   }
+  }
+  cardColor.addEventListener('input',()=>setCardColor(cardColor.value));
+  setCardColor(values.color);
+  const resetColor=document.createElement('button');
+  resetColor.type='button';
+  resetColor.textContent='Color original';
+  resetColor.addEventListener('click',()=>{
+   cardColor.value='#ffffff';
+   setCardColor('');
+  });
+  const remove=document.createElement('button');
+  remove.type='button';
+  remove.textContent='Eliminar tarjeta';
+  remove.addEventListener('click',async()=>{
+   if(!await gacorpConfirmDelete('¿Eliminar esta tarjeta?','La eliminación se aplicará al guardar los cambios.'))return;
+   card.remove();
+   button.focus();
+  });
+  options.append(select,cardColor,resetColor,remove);
+  card.append(icon,title,description,options);
+  grid.insertBefore(card,button);
+  return title;
+ }
+ function readCards(group){
+  return [...group.grid.querySelectorAll(':scope > .gacorp-custom-card')].map(card=>({
+   title:readEditableText(card.querySelector('[data-card-text="title"]')),
+   description:readEditableText(card.querySelector('[data-card-text="description"]')),
+   icon:card.querySelector('select').value,
+   color:card.dataset.customColor||''
+  })).filter(card=>card.title.trim()||card.description.trim()||card.icon||card.color);
+ }
+ sections.forEach(section=>{
+  [...section.children].filter(child=>!child.matches('.gacorp-user-note,script,style,[hidden]')).forEach((child,index)=>{
+   child.dataset.imagePlacement=String(index);
+  });
+  [...section.querySelectorAll('img:not(.gacorp-user-image)')].forEach((image,index)=>{
+   const key=section.id+':image:'+index;
+   originalImages.set(key,{image,src:image.getAttribute('src')});
+   const change=document.createElement('button');
+   change.type='button';
+   change.className='gacorp-image-control';
+   change.textContent='Cambiar imagen';
+   image.parentElement.classList.add('gacorp-image-parent');
+   image.after(change);
+   change.addEventListener('click',()=>openImageDialog({key,label:image.alt||'Imagen de la sección'}));
+  });
+  registerFields(section.id,fields(section).filter(el=>!el.closest('.project-grid')));
+  const extra=[...section.querySelectorAll('div,span,figcaption,dt,dd,strong,b,em')].filter(el=>
+   !el.childElementCount&&el.textContent.trim()&&!el.closest(excluded+',.project-grid,[data-gacorp-field]')
+  );
+  registerFields(section.id+':extra',extra);
+  const legacyNotes=[...section.querySelectorAll('.gacorp-user-note')];
+  const notes=saved.notes?saved.notes[section.id]||[]:legacyNotes.map(note=>note.innerText);
+  legacyNotes.forEach(note=>note.remove());
+  for(const value of notes){
+   if(typeof value==='string')appendNote(section,value,'end');
+   else if(typeof value?.text==='string')appendNote(section,value.text,value.position);
+  }
+  for(const image of saved.images?.[section.id]||[]){
+   if(validImageSource(image.src))appendImage(section,image.src,image.alt,image.anchor);
+  }
+  section.querySelectorAll('.identity-grid,.values-grid,.scenario-grid,.foda-grid,.evo-summary-grid').forEach((grid,index)=>{
+   const template=grid.firstElementChild;
+   if(!template)return;
+   const key=section.id+':'+index;
+   const button=document.createElement('button');
+   button.type='button';
+   button.className='gacorp-card-add';
+   button.textContent='+ Agregar tarjeta';
+   const group={grid,button,template};
+   cardGrids.set(key,group);
+   grid.appendChild(button);
+   for(const values of saved.cards?.[key]||[])addCard(group,values);
+   button.addEventListener('click',()=>{
+    const title=addCard(group);
+    setEditing(true);
+    title.focus();
+   });
+  });
+ });
+ document.addEventListener('gacorp:project-modal',event=>{
+  const box=document.getElementById('projModalBox');
+  const id=event.detail;
+  box.querySelector('.gacorp-image-control').addEventListener('click',()=>{
+   const project=PROJECTS.find(project=>project.id===id);
+   openImageDialog({key:'project:'+id,label:project.name,src:project.image});
+  });
+ });
+ applyImageReplacements();
+ const sidebarFields=[...document.querySelectorAll('#sidebar :is(.wordmark,.subline,[data-sidebar-text],.nav .label)')];
+ registerFields('sidebar',sidebarFields);
+ const headerFields=[...document.querySelectorAll('#crumb,#pageTitle')];
+ function registerHeader(){
+  const section=document.querySelector('.content-section.active');
+  if(section)registerFields('header:'+section.id,headerFields);
+ }
+ registerHeader();
+ registerFields('header:menu',[document.getElementById('menuToggle')]);
+ document.querySelectorAll('.project-grid').forEach(registerProjects);
  function setEditing(on){
   editing=on;document.body.classList.toggle('gacorp-editing',on);editBtn.classList.toggle('editing',on);
-  editBtn.textContent=on?'✓ Guardar cambios':'✎ Editar información';addBtn.style.display=on?'block':'none';
-  if(on){document.querySelectorAll('.content-section.active '+editableSelector).forEach(el=>{if(el.closest('button,a,svg,script,style,[data-map-seg],#gm-objectives-manager,.okr-metric'))return;el.contentEditable='true';el.spellcheck=true;el.classList.add('gacorp-editable');});}
-  else{document.querySelectorAll('[contenteditable="true"]').forEach(el=>{el.removeAttribute('contenteditable');el.classList.remove('gacorp-editable');});}
+  editBtn.title=on?'Guardar cambios':'Editar información';
+  editBtn.setAttribute('aria-label',editBtn.title);
+  if(on)editBtn.textContent='Guardar cambios';
+  else editBtn.innerHTML=pencilIcon;
+  editActions.hidden=!on;
+  cancelBtn.hidden=!on;
+  document.querySelectorAll('.gacorp-editable').forEach(el=>{el.removeAttribute('contenteditable');el.classList.remove('gacorp-editable');});
+  if(on)document.querySelectorAll('.content-section.active :is([data-gacorp-field],.gacorp-user-note,[data-card-text]),#sidebar [data-gacorp-field],.topbar [data-gacorp-field]').forEach(el=>{
+   if(el.dataset.gacorpField&&!originalFields.has(el))originalFields.set(el,el.innerHTML);
+   el.contentEditable='plaintext-only';
+   el.classList.add('gacorp-editable');
+  });
  }
- editBtn.addEventListener('click',()=>{
-  if(!editing){setEditing(true);return;}
-  setEditing(false);const saved={};document.querySelectorAll('.content-section:not(#sec-objetivos)').forEach(sec=>saved[sec.id]=sec.innerHTML);
-  try{localStorage.setItem(storageKey,JSON.stringify(saved));alert('Cambios guardados en este navegador. Para compartirlos entre usuarios falta conectar una base de datos común.');}
-  catch(e){alert('No se pudo guardar: el navegador alcanzó su límite de almacenamiento.');}
-  if(typeof renderProjects==='function'){renderProjects('todos','');renderProjects('todos','','dashProjectGrid');}
+ document.addEventListener('input',event=>{
+  const field=event.target.closest('[data-gacorp-field].gacorp-editable');
+  if(field)drafts.set(field.dataset.gacorpField,field.innerText);
+  if(event.target.matches('.gacorp-user-note,[data-card-text]'))event.target.dataset.editedText=event.target.innerText;
+ });
+ document.addEventListener('gacorp:projects-rendered',event=>{
+  registerProjects(event.detail);
+  applyImageReplacements();
+  if(editing)setEditing(true);
+ });
+ document.addEventListener('gacorp:section-changed',()=>{
+  registerHeader();
+  if(editing)setEditing(true);
+ });
+ document.addEventListener('click',event=>{
+  if(event.target.closest('.gacorp-editable')?.closest('button'))event.stopPropagation();
+ },true);
+ document.addEventListener('keydown',event=>{
+  if(event.key==='Enter'&&event.target.closest('.gacorp-editable')?.closest('button'))event.preventDefault();
+ });
+ function showSaveMessage(icon,title){
+  return gacorpAlert({icon,title});
+ }
+ function readEditableText(element){
+  return element.dataset.editedText??element.textContent;
+ }
+ function readNotes(section){
+  return [...section.querySelectorAll('.gacorp-user-note')].map(note=>({
+   text:readEditableText(note),
+   position:note.parentElement.dataset.position
+  })).filter(value=>value.text.trim());
+ }
+ function discardEdits(){
+  theme=structuredClone(saved.theme||{});
+  applyTheme();
+  imageReplacements={...saved.imageReplacements};
+  applyImageReplacements();
+  originalFields.forEach((html,element)=>{
+   if(element.isConnected&&element.innerHTML!==html)element.innerHTML=html;
+  });
+  originalFields.clear();
+  drafts.clear();
+  sections.forEach(section=>{
+   section.querySelectorAll('.gacorp-note-block,.gacorp-user-image').forEach(element=>element.remove());
+   for(const note of originalNotes.get(section))appendNote(section,note.text,note.position);
+   for(const image of saved.images?.[section.id]||[]){
+    if(validImageSource(image.src))appendImage(section,image.src,image.alt,image.anchor);
+   }
+  });
+  cardGrids.forEach((group,key)=>{
+   group.grid.querySelectorAll(':scope > .gacorp-custom-card').forEach(card=>card.remove());
+   for(const values of saved.cards?.[key]||[])addCard(group,values);
+  });
+  setEditing(false);
+ }
+ cancelBtn.addEventListener('click',discardEdits);
+ editBtn.addEventListener('click',async()=>{
+  if(!editing){
+   originalNotes=new Map(sections.map(section=>[section,readNotes(section)]));
+   setEditing(true);
+   return;
+  }
+  editBtn.disabled=true;
+  try{
+   const title='¿Estás seguro de que quieres guardar los cambios?';
+   const confirmed=await gacorpAlert({icon:'question',title,confirmButtonText:'Sí, guardar',cancelButtonText:'Volver a editar'});
+   if(!confirmed)return;
+   const notes={},images={};
+   sections.forEach(section=>{
+    const values=readNotes(section);
+    if(values.length)notes[section.id]=values;
+    const pictures=[...section.querySelectorAll('.gacorp-user-image')].map(image=>({src:image.src,alt:image.alt,anchor:image.dataset.imageAnchor}));
+    if(pictures.length)images[section.id]=pictures;
+   });
+   const cards=Object.fromEntries([...cardGrids].map(([key,group])=>[key,readCards(group)]));
+   const next={fields:{...readEdits().fields,...Object.fromEntries(drafts)},notes,images,imageReplacements:{...imageReplacements},cards,theme:structuredClone(theme)};
+   try{localStorage.setItem(storageKey,JSON.stringify(next));}
+   catch(e){await showSaveMessage('error','No se pudieron guardar los cambios en este navegador.');return;}
+   saved=next;
+   originalFields.clear();
+   drafts.clear();
+   document.querySelectorAll('.gacorp-user-note').forEach(note=>{
+    if(!readEditableText(note).trim())note.parentElement.remove();
+   });
+   cardGrids.forEach((group,key)=>{
+    group.grid.querySelectorAll(':scope > .gacorp-custom-card').forEach(card=>card.remove());
+    for(const values of cards[key])addCard(group,values);
+   });
+   setEditing(false);
+   document.querySelectorAll('.project-grid').forEach(registerProjects);
+   await showSaveMessage('success','Cambios guardados exitosamente');
+  }finally{editBtn.disabled=false;}
  });
  addBtn.addEventListener('click',()=>{
-  const sec=document.querySelector('.content-section.active');if(!sec)return;
-  const note=document.createElement('p');note.className='gacorp-user-note';note.textContent='Escribe aquí la nueva información...';note.contentEditable='true';note.spellcheck=true;
-  const footer=sec.querySelector('.callout')||sec.lastElementChild;if(footer)sec.insertBefore(note,footer);else sec.appendChild(note);note.focus();
+  const section=document.querySelector('.content-section.active');
+  if(!section)return;
+  const note=appendNote(section,'','end');
+  setEditing(true);
+  note.focus({preventScroll:true});
+  note.scrollIntoView({block:'center'});
  });
- document.addEventListener('click',e=>{if(!editing)return;const nav=e.target.closest('.nav-item,.nav-flat');if(nav)setTimeout(()=>setEditing(true),100);},true);
+ const imageDialog=document.createElement('dialog');
+ imageDialog.className='gacorp-theme-dialog gacorp-image-dialog';
+ imageDialog.setAttribute('aria-labelledby','gacorp-image-dialog-title');
+ imageDialog.innerHTML='<form><h2 id="gacorp-image-dialog-title"></h2><img class="gacorp-image-preview" alt="Vista previa de la imagen" hidden><label>Ubicación<select required></select></label><label>Archivo de imagen<input type="file" accept="image/jpeg,image/png,image/webp" required></label><div class="gacorp-theme-buttons"><button type="button">Cancelar</button><button type="submit">Insertar imagen</button></div></form>';
+ document.body.appendChild(imageDialog);
+ const imagePlacement=imageDialog.querySelector('select');
+ const imageInput=imageDialog.querySelector('input');
+ const imagePreview=imageDialog.querySelector('img');
+ const imageSubmit=imageDialog.querySelector('button[type="submit"]');
+ const allowedImageTypes=['image/jpeg','image/png','image/webp'];
+ let previewUrl;
+ let imageTarget;
+ function refreshImagePreview(){
+  if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=undefined;}
+  const [file]=imageInput.files;
+  const replacement=imageTarget?.replacement;
+  if(file&&allowedImageTypes.includes(file.type))previewUrl=URL.createObjectURL(file);
+  const source=previewUrl||(replacement&&(imageReplacements[replacement.key]||replacement.src||originalImages.get(replacement.key)?.src));
+  imagePreview.hidden=!source;
+  if(source)imagePreview.src=source;
+  else imagePreview.removeAttribute('src');
+ }
+ function openImageDialog(replacement){
+  if(!editing||imageBtn.disabled)return;
+  const section=document.querySelector('.content-section.active');
+  if(!section)return;
+  imageTarget={section,replacement};
+  imageDialog.querySelector('h2').textContent=replacement?'Cambiar imagen · '+replacement.label:'Insertar imagen · '+(TITLES[section.id.slice(4)]||'Sección actual');
+  imagePlacement.parentElement.hidden=Boolean(replacement);
+  imagePlacement.disabled=Boolean(replacement);
+  imagePlacement.replaceChildren(new Option('Elige dónde colocar la imagen',''));
+  for(const block of section.querySelectorAll(':scope > [data-image-placement]')){
+   const heading=block.matches('h1,h2,h3,h4,.subhead')?block:block.querySelector('h1,h2,h3,h4,.subhead');
+   const name=(heading||block).textContent.trim().replace(/\s+/g,' ').slice(0,65);
+   const id=block.dataset.imagePlacement;
+   imagePlacement.add(new Option(name?'Después de '+name:'Después del bloque '+(Number(id)+1),id));
+  }
+  imagePlacement.add(new Option('Al final de la sección','end'));
+  imageInput.value='';
+  refreshImagePreview();
+  imageSubmit.textContent=replacement?'Cambiar imagen':'Insertar imagen';
+  imageDialog.showModal();
+ }
+ imageBtn.addEventListener('click',()=>openImageDialog());
+ imageInput.addEventListener('change',refreshImagePreview);
+ imageDialog.addEventListener('close',()=>{
+  if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=undefined;}
+  imagePreview.removeAttribute('src');
+  imagePreview.hidden=true;
+ });
+ imageDialog.querySelector('button[type="button"]').addEventListener('click',()=>imageDialog.close());
+ imageDialog.querySelector('form').addEventListener('submit',async event=>{
+  event.preventDefault();
+  const [file]=imageInput.files;
+  if(!file||!editing)return;
+  const {section,replacement}=imageTarget;
+  const anchor=imagePlacement.value;
+  imageDialog.close();
+  imageBtn.disabled=true;
+  editBtn.disabled=true;
+  cancelBtn.disabled=true;
+  const url=URL.createObjectURL(file);
+  try{
+   if(!allowedImageTypes.includes(file.type))throw Error('Formato de imagen');
+   const image=new Image();
+   image.src=url;
+   await image.decode();
+   const scale=Math.min(1,1280/Math.max(image.naturalWidth,image.naturalHeight));
+   const canvas=document.createElement('canvas');
+   canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));
+   canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));
+   canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
+   const source=canvas.toDataURL('image/webp',0.82);
+   if(!validImageSource(source))throw Error('Formato de imagen');
+   if(replacement){
+    imageReplacements[replacement.key]=source;
+    applyImageReplacements();
+   }else{
+    const inserted=appendImage(section,source,file.name,anchor);
+    inserted.scrollIntoView({block:'center'});
+   }
+  }catch(e){
+   await showSaveMessage('error','No se pudo cargar la imagen. Selecciona un archivo JPG, PNG o WebP.');
+  }finally{
+   URL.revokeObjectURL(url);
+   imageBtn.disabled=false;
+   editBtn.disabled=false;
+   cancelBtn.disabled=false;
+  }
+ });
 })();
 </script>
 <script>
@@ -3149,7 +3799,11 @@ navigate(document.getElementById('sec-'+startId) ? startId : 'inicio');
    });
    const action=document.createElement('button');action.type='button';action.textContent='Eliminar';action.className='gacorp-row-delete';
    action.style.cssText='margin:4px;padding:6px 9px;border:0;border-radius:6px;background:#a80710;color:#fff;cursor:pointer;font-weight:700';
-   action.addEventListener('click',()=>{if(confirm('¿Eliminar este factor de '+type+'?')){tr.remove();recalc();}});
+   action.addEventListener('click',async()=>{
+    if(!await gacorpConfirmDelete('¿Eliminar este factor de '+type+'?'))return;
+    tr.remove();recalc();
+    await gacorpAlert({icon:'success',title:'Factor eliminado'});
+   });
    tr.cells[0].appendChild(action);
   }
   function recalc(){
@@ -3203,7 +3857,12 @@ navigate(document.getElementById('sec-'+startId) ? startId : 'inicio');
   const add=document.createElement('button');add.type='button';add.textContent='＋ Agregar factor';
   const remove=document.createElement('button');remove.type='button';remove.className='danger';remove.textContent='Eliminar último factor';
   add.addEventListener('click',()=>{const li=document.createElement('li');li.contentEditable='true';li.innerHTML='<strong>Nuevo factor:</strong> escribe aquí su descripción.';list.appendChild(li);li.focus();});
-  remove.addEventListener('click',()=>{if(list.children.length<=1)return alert('Debe quedar al menos un factor.');if(confirm('¿Eliminar el último factor de '+(qs('h4',quad)?.textContent||'este cuadrante')+'?'))list.lastElementChild.remove();});
+   remove.addEventListener('click',async()=>{
+    if(list.children.length<=1){await gacorpAlert({icon:'info',title:'Debe quedar al menos un factor.'});return;}
+    if(!await gacorpConfirmDelete('¿Eliminar el último factor de '+(qs('h4',quad)?.textContent||'este cuadrante')+'?'))return;
+    list.lastElementChild.remove();
+    await gacorpAlert({icon:'success',title:'Factor eliminado'});
+   });
   bar.append(add,remove);quad.appendChild(bar);
  });
 })();
@@ -3255,7 +3914,11 @@ navigate(document.getElementById('sec-'+startId) ? startId : 'inicio');
    tr.innerHTML='<td><input type="text" aria-label="Factor" placeholder="Nuevo factor '+n+'"></td><td><input type="number" aria-label="Peso" min="0" max="1" step="0.01" value="0.00"></td><td><input type="number" aria-label="Calificación" min="1" max="4" step="1" value="'+(cfg.type==='EFI'?(group==='FORTALEZAS'?4:1):1)+'"></td><td class="matrix-weighted">0.00</td><td><input type="text" aria-label="Justificación o evidencia" placeholder="Justificación / evidencia"><button type="button" class="matrix-remove">Eliminar factor</button></td>';
    const ins=$$('input',tr);ins[0].value=vals[0];ins[1].value=vals[1];ins[2].value=vals[2];ins[3].value=vals[3];
    ins.forEach(input=>input.addEventListener('input',()=>{update();save();}));
-   $('.matrix-remove',tr).addEventListener('click',()=>{if(confirm('¿Eliminar este factor adicional de '+group+'?')){tr.remove();update();save();}});
+   $('.matrix-remove',tr).addEventListener('click',async()=>{
+    if(!await gacorpConfirmDelete('¿Eliminar este factor adicional de '+group+'?'))return;
+    tr.remove();update();save();
+    await gacorpAlert({icon:'success',title:'Factor eliminado'});
+   });
    const headers=categoryRows(tbody),header=headerFor(group),idx=headers.indexOf(header),next=headers[idx+1]||getTotal(tbody);
    tbody.insertBefore(tr,next);
    return tr;
@@ -3386,11 +4049,19 @@ document.querySelectorAll('.tabset').forEach(root=>{
  }
  function actionButton(title,fn){const button=el('button','',title);button.type='button';button.addEventListener('click',fn);return button;}
  function actions(rec,kind){const row=el('div','gm-dynamic-actions'+(kind==='objective'?' gm-new-objective-actions':''));
-  row.append(actionButton('Editar',()=>{setTab(kind,rec.id);root.scrollIntoView({behavior:'smooth',block:'start'});}),actionButton('Eliminar',()=>{
+  row.append(actionButton('Editar',()=>{setTab(kind,rec.id);root.scrollIntoView({behavior:'smooth',block:'start'});}),actionButton('Eliminar',async()=>{
    const linked=kind==='objective'?data.kpi.filter(k=>k.objectiveId===rec.id).length:0;
-   if(!confirm(linked?`Este objetivo tiene ${linked} KPI. ¿Eliminar el objetivo y sus KPI?`:`¿Eliminar «${rec.title}»?`))return;
+   if(!await gacorpConfirmDelete(`¿Eliminar «${rec.title}»?`,linked?`También se eliminarán los KPI vinculados (${linked}).`:undefined))return;
+   const previous=data[kind],previousKpis=data.kpi;
    data[kind]=data[kind].filter(x=>x.id!==rec.id);if(kind==='objective')data.kpi=data.kpi.filter(x=>x.objectiveId!==rec.id);
-   if(editing===rec.id)editing=null;save();renderForm();render();
+   if(!save()){
+    data[kind]=previous;data.kpi=previousKpis;
+    await gacorpAlert({icon:'error',title:'No se pudo guardar la eliminación'});
+    return;
+   }
+   if(editing===rec.id)editing=null;
+   renderForm();render();
+   await gacorpAlert({icon:'success',title:kind==='objective'?'Objetivo eliminado':'Indicador eliminado'});
   }));return row;
  }
  function progress(rec){
@@ -3467,6 +4138,7 @@ document.querySelectorAll('.tabset').forEach(root=>{
   if(type==='objective'){
    feedback.textContent=isEdit?'Objetivo actualizado. También se actualizó el Plan Operativo.':'Objetivo guardado. Ahora abre “2. Indicadores KPI” y registra su KPI.';
   }else feedback.textContent='KPI guardado. Ya aparece la barra de avance y se actualizó el Plan Operativo.';
+  gacorpAlert({icon:'success',title:'Cambios guardados exitosamente',text:feedback.textContent});
  });
  load();renderForm();render();
 // Los indicadores antiguos pueden reconstruirse con el editor general. Delegación para mantenerlos activos después de recargar.
@@ -3509,14 +4181,34 @@ document.querySelectorAll('.tabset').forEach(root=>{
   const icon=document.createElement('div');icon.className='vc-icn';
   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('width','20');svg.setAttribute('height','20');svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','1.8');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');svg.innerHTML=icons[item.icon]||icons.star;icon.append(svg);
   const name=document.createElement('div');name.className='vc-name';name.textContent=item.name;
-  const remove=document.createElement('button');remove.type='button';remove.className='gm-value-remove';remove.textContent='×';remove.setAttribute('aria-label','Eliminar '+item.name);remove.title='Eliminar valor';remove.addEventListener('click',()=>{if(!confirm('¿Eliminar el valor «'+item.name+'»?'))return;values=values.filter(v=>v.id!==item.id);save();draw();});
+  const remove=document.createElement('button');remove.type='button';remove.className='gm-value-remove';remove.textContent='×';remove.setAttribute('aria-label','Eliminar '+item.name);remove.title='Eliminar valor';
+  remove.addEventListener('click',async()=>{
+   if(!await gacorpConfirmDelete('¿Eliminar el valor «'+item.name+'»?'))return;
+   const previous=values;
+   values=values.filter(v=>v.id!==item.id);
+   if(!save()){
+    values=previous;
+    await gacorpAlert({icon:'error',title:'No se pudo guardar la eliminación'});
+    return;
+   }
+   draw();
+   await gacorpAlert({icon:'success',title:'Valor eliminado'});
+  });
   card.append(remove,icon,name);grid.append(card);
  });}
  try{const saved=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(saved))values=saved.filter(v=>v&&typeof v.name==='string'&&typeof v.id==='string');}catch(e){feedback.textContent='No se pudieron cargar los valores agregados.';}
  draw();
  form.addEventListener('submit',e=>{e.preventDefault();const f=new FormData(form),name=String(f.get('valueName')||'').trim(),icon=String(f.get('valueIcon')||'star');if(!name){feedback.textContent='Escribe el nombre del valor.';return;}
   if([...grid.querySelectorAll('.vc-name')].some(e=>e.textContent.trim().toLowerCase()===name.toLowerCase())){feedback.textContent='Este valor ya está registrado.';return;}
-  values.push({id:String(Date.now())+'-'+Math.random().toString(36).slice(2,7),name,icon:icons[icon]?icon:'star'});if(save()){draw();form.reset();feedback.textContent='Valor agregado correctamente con su ícono.';}
+  values.push({id:String(Date.now())+'-'+Math.random().toString(36).slice(2,7),name,icon:icons[icon]?icon:'star'});
+  if(!save()){
+   values.pop();
+   gacorpAlert({icon:'error',title:feedback.textContent});
+   return;
+  }
+  draw();form.reset();
+  feedback.textContent='Valor agregado correctamente con su ícono.';
+  gacorpAlert({icon:'success',title:'Valor guardado'});
  });
 })();
 </script>
