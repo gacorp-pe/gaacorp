@@ -1,11 +1,11 @@
 import { createServer } from 'node:http';
-import { createHash, timingSafeEqual } from 'node:crypto';
+import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
-const { PORT = 8080, CONTENT_DIR = './data', EDITOR_KEY, SITE_ORIGIN = 'https://gacorp-pe.github.io' } = process.env;
-if (!EDITOR_KEY || EDITOR_KEY.length < 24) throw new Error('Set an EDITOR_KEY of at least 24 characters');
+const { PORT = 8080, CONTENT_DIR = './data', SITE_PASSWORD, SITE_ORIGIN = 'https://gacorp-pe.github.io' } = process.env;
+if (!SITE_PASSWORD) throw new Error('Set SITE_PASSWORD to the current login password');
 
 mkdirSync(CONTENT_DIR, { recursive: true });
 const db = new DatabaseSync(join(CONTENT_DIR, 'content.sqlite'));
@@ -17,7 +17,13 @@ db.exec(`CREATE TABLE IF NOT EXISTS site_content (
 const getContent = db.prepare('SELECT revision, content FROM site_content WHERE id = 1');
 const insertContent = db.prepare('INSERT OR IGNORE INTO site_content VALUES (1, 1, ?)');
 const updateContent = db.prepare('UPDATE site_content SET content = ?, revision = revision + 1 WHERE id = 1 AND revision = ?');
-const editorHash = hash(`Bearer ${EDITOR_KEY}`);
+db.exec('CREATE TABLE IF NOT EXISTS site_session (hash TEXT PRIMARY KEY, expires INTEGER NOT NULL)');
+const insertSession = db.prepare('INSERT INTO site_session VALUES (?, ?)');
+const findSession = db.prepare('SELECT 1 FROM site_session WHERE hash = ? AND expires > ?');
+const deleteSession = db.prepare('DELETE FROM site_session WHERE hash = ?');
+const cleanSessions = db.prepare('DELETE FROM site_session WHERE expires <= ?');
+const passwordHash = hash(SITE_PASSWORD);
+const sessionDuration = 7 * 24 * 60 * 60 * 1000;
 const maxSize = 8 * 1024 * 1024;
 
 function hash(value) {
@@ -29,12 +35,12 @@ function send(response, status, body) {
   response.end(JSON.stringify(body));
 }
 
-async function readBody(request) {
+async function readBody(request, limit = maxSize) {
   const chunks = [];
   let size = 0;
   for await (const chunk of request) {
     size += chunk.length;
-    if (size > maxSize) return null;
+    if (size > limit) return null;
     chunks.push(chunk);
   }
   return Buffer.concat(chunks).toString('utf8');
@@ -45,22 +51,45 @@ createServer(async (request, response) => {
   response.setHeader('Vary', 'Origin');
   if (request.headers.origin === SITE_ORIGIN) {
     response.setHeader('Access-Control-Allow-Origin', SITE_ORIGIN);
-    response.setHeader('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS');
+    response.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     response.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
   }
   if (request.url === '/health' && request.method === 'GET') return send(response, 200, { ok: true });
-  if (request.url !== '/v1/content') return send(response, 404, { error: 'not_found' });
+  if (!['/v1/content', '/v1/session'].includes(request.url)) return send(response, 404, { error: 'not_found' });
   if (request.method === 'OPTIONS') {
     response.writeHead(request.headers.origin === SITE_ORIGIN ? 204 : 403);
     return response.end();
+  }
+  if (request.url === '/v1/session') {
+    if (request.method === 'DELETE') {
+      deleteSession.run(hash(request.headers.authorization || '').toString('hex'));
+      return send(response, 200, { ok: true });
+    }
+    if (request.method !== 'POST') return send(response, 405, { error: 'method_not_allowed' });
+    try {
+      const body = await readBody(request, 4096);
+      if (body === null) return send(response, 413, { error: 'request_too_large' });
+      const { username, password } = JSON.parse(body) ?? {};
+      if (typeof username !== 'string' || username.trim().toLowerCase() !== 'gacorp2026'
+        || typeof password !== 'string' || !timingSafeEqual(passwordHash, hash(password))) {
+        return send(response, 401, { error: 'invalid_credentials' });
+      }
+      const token = randomBytes(32).toString('hex');
+      const now = Date.now();
+      cleanSessions.run(now);
+      insertSession.run(hash(`Bearer ${token}`).toString('hex'), now + sessionDuration);
+      return send(response, 200, { token, expiresAt: now + sessionDuration });
+    } catch {
+      return send(response, 400, { error: 'invalid_session_request' });
+    }
   }
   if (request.method === 'GET') {
     const current = getContent.get();
     return send(response, 200, { revision: current?.revision ?? 0, content: current ? JSON.parse(current.content) : null });
   }
   if (request.method !== 'PUT') return send(response, 405, { error: 'method_not_allowed' });
-  if (!timingSafeEqual(editorHash, hash(request.headers.authorization || ''))) {
-    return send(response, 401, { error: 'invalid_editor_key' });
+  if (!findSession.get(hash(request.headers.authorization || '').toString('hex'), Date.now())) {
+    return send(response, 401, { error: 'invalid_session' });
   }
   try {
     const body = await readBody(request);

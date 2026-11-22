@@ -2365,11 +2365,16 @@ const gacorpContentSync=(()=>{
  if(!endpoint)return null;
  const storageKey='gacorp-content-edits-v1';
  const revisionKey='gacorp-content-revision';
- const accessKey='gacorp-content-editor-session';
+ const accessKey='gacorp-content-login-session';
+ const sessionEndpoint=new URL('session',endpoint);
  let revision;
- let editorKey;
- function request(options={}){
-  return fetch(endpoint,{...options,cache:'no-store',signal:AbortSignal.timeout(12000)});
+ let session;
+ try{
+  session=JSON.parse(sessionStorage.getItem(accessKey)||'null');
+  sessionStorage.removeItem('gacorp-content-editor-session');
+ }catch{}
+ function request(options={},url=endpoint){
+  return fetch(url,{...options,cache:'no-store',signal:AbortSignal.timeout(12000)});
  }
  async function load(){
   document.documentElement.classList.add('gacorp-loading-content');
@@ -2398,51 +2403,53 @@ const gacorpContentSync=(()=>{
   }
  }
  const ready=load();
- addEventListener('gacorp:logout',()=>{
-  editorKey=undefined;
+ function isSignedIn(){
+  return Boolean(session?.token&&session.expiresAt>Date.now());
+ }
+ async function signIn(username,password){
+  const response=await request({
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({username,password})
+  },sessionEndpoint);
+  if(response.status===401)return false;
+  if(!response.ok)throw Error('No se pudo iniciar sesión.');
+  session=await response.json();
+  try{sessionStorage.setItem(accessKey,JSON.stringify(session));}catch{}
+  return true;
+ }
+ function signOut(){
+  const token=session?.token;
+  session=null;
   try{sessionStorage.removeItem(accessKey);}catch{}
- });
+  if(token)request({method:'DELETE',headers:{Authorization:'Bearer '+token}},sessionEndpoint).catch(()=>{});
+ }
  async function save(content){
   if(!await ready||revision===undefined)throw Error('No se pudo conectar con el guardado compartido. Recarga la página y vuelve a intentarlo.');
-  try{editorKey??=sessionStorage.getItem(accessKey);}catch{}
-  if(!editorKey){
-   if(!window.Swal)throw Error('No se pudo abrir la pantalla de autorización. Inténtalo de nuevo.');
-   const result=await window.Swal.fire({
-    titleText:'Autorizar guardado compartido',input:'password',inputLabel:'Clave de edición',
-    inputAttributes:{autocomplete:'off'},showCancelButton:true,
-    confirmButtonText:'Autorizar',cancelButtonText:'Cancelar',
-    inputValidator:value=>value.trim()?undefined:'Ingresa la clave de edición.'
-   });
-   if(!result.isConfirmed)return false;
-   editorKey=result.value.trim();
-  }
+  if(!isSignedIn())throw Error('Tu sesión venció. Vuelve a iniciar sesión para guardar.');
   const response=await request({
    method:'PUT',
-   headers:{'Content-Type':'application/json','Authorization':'Bearer '+editorKey},
+   headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.token},
    body:JSON.stringify({revision,content})
   });
   if(response.status===401){
-   editorKey=undefined;
-   try{sessionStorage.removeItem(accessKey);}catch{}
-   throw Error('La clave de edición es incorrecta.');
+   signOut();
+   throw Error('Tu sesión venció. Vuelve a iniciar sesión para guardar.');
   }
   if(response.status===409)throw Error('Otra persona guardó cambios. Recarga antes de volver a editar.');
   if(response.status===413)throw Error('El contenido supera el tamaño permitido. Reduce el tamaño de las imágenes.');
   if(!response.ok)throw Error('No se pudieron guardar los cambios para los demás dispositivos.');
   revision=(await response.json()).revision;
   try{
-   sessionStorage.setItem(accessKey,editorKey);
    localStorage.setItem(storageKey,JSON.stringify(content));
    localStorage.setItem(revisionKey,String(revision));
   }catch{}
   return true;
  }
- return {ready,save};
+ return {ready,save,signIn,signOut,isSignedIn};
 })();
 /* Inicio de sesión independiente: debe funcionar aunque falle algún módulo secundario. */
 (function(){
-  const VALID_USER = 'Gacorp2026';
-  const VALID_PASS = 'Gacorp2026';
   const byId = id => document.getElementById(id);
   const authGate = byId('authGate');
   const coverScreen = byId('coverScreen');
@@ -2451,7 +2458,7 @@ const gacorpContentSync=(()=>{
   const userInput = byId('loginUser');
   const passInput = byId('loginPass');
   const errorBox = byId('loginError');
-  const sessionKey = 'gacorp-auth-session';
+  const submit = byId('loginSubmitBtn');
   function showApp(){
     errorBox.classList.remove('show');
     authGate.classList.add('hidden');
@@ -2459,8 +2466,7 @@ const gacorpContentSync=(()=>{
     document.body.classList.add('gacorp-authenticated');
   }
   function logout(){
-    try{sessionStorage.removeItem(sessionKey);}catch(e){}
-    window.dispatchEvent(new Event('gacorp:logout'));
+    gacorpContentSync.signOut();
     appShell.style.display = 'none';
     document.body.classList.remove('gacorp-authenticated');
     authGate.classList.remove('hidden');
@@ -2470,23 +2476,32 @@ const gacorpContentSync=(()=>{
     userInput.value = '';
     passInput.value = '';
   }
-  try{if(sessionStorage.getItem(sessionKey)==='active')showApp();}catch(e){}
-  window.gacorpAttemptLogin = function(){
+  if(gacorpContentSync.isSignedIn())showApp();
+  window.gacorpAttemptLogin = async function(){
+    if(submit.disabled)return;
     const u = (userInput.value || '').trim();
     const p = passInput.value || '';
-    if (u.toLowerCase() === VALID_USER.toLowerCase() && p === VALID_PASS) {
-      try{sessionStorage.setItem(sessionKey,'active');}catch(e){}
-      showApp();
-      window.dispatchEvent(new Event('gacorp:login-success'));
-      gacorpAlert({icon:'success',title:'Bienvenido a Gacorp',confirmButtonText:'Continuar'});
-    } else {
-      errorBox.textContent = 'Usuario o contraseña incorrectos. Verifica que estén escritos exactamente como se indican.';
+    submit.disabled=true;
+    try{
+      if(await gacorpContentSync.signIn(u,p)){
+        passInput.value='';
+        showApp();
+        window.dispatchEvent(new Event('gacorp:login-success'));
+        gacorpAlert({icon:'success',title:'Bienvenido a Gacorp',confirmButtonText:'Continuar'});
+        return;
+      }
+      errorBox.textContent='Usuario o contraseña incorrectos. Verifica que estén escritos exactamente como se indican.';
       errorBox.classList.add('show');
       passInput.focus();
       passInput.select();
+    }catch{
+      errorBox.textContent='No se pudo conectar para iniciar sesión. Inténtalo de nuevo.';
+      errorBox.classList.add('show');
+    }finally{
+      submit.disabled=false;
     }
   };
-  byId('loginSubmitBtn').addEventListener('click', window.gacorpAttemptLogin);
+  submit.addEventListener('click', window.gacorpAttemptLogin);
   [userInput, passInput].forEach(el => el.addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); window.gacorpAttemptLogin(); }
   }));
