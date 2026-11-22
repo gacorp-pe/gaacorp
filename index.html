@@ -4,6 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta name="gacorp-content-api" content="https://content-api-production-edf4fff7.up.railway.app/v1/content"/>
 <title>GACORP · Plataforma Estratégica y Portafolio Editable</title>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
@@ -35,6 +36,7 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
+  .gacorp-loading-content #appShell{visibility:hidden}
   body{
     font-family:'Inter',sans-serif;
     background:var(--paper-50);
@@ -2358,6 +2360,85 @@ function gacorpAlert({title,text,icon,confirmButtonText='Aceptar',cancelButtonTe
 function gacorpConfirmDelete(title,text){
  return gacorpAlert({title,text,icon:'warning',confirmButtonText:'Sí, eliminar',cancelButtonText:'Cancelar'});
 }
+const gacorpContentSync=(()=>{
+ const endpoint=document.querySelector('meta[name="gacorp-content-api"]').content.trim();
+ if(!endpoint)return null;
+ const storageKey='gacorp-content-edits-v1';
+ const revisionKey='gacorp-content-revision';
+ const accessKey='gacorp-content-editor-session';
+ let revision;
+ let editorKey;
+ function request(options={}){
+  return fetch(endpoint,{...options,cache:'no-store',signal:AbortSignal.timeout(12000)});
+ }
+ async function load(){
+  document.documentElement.classList.add('gacorp-loading-content');
+  try{
+   const cachedRevision=localStorage.getItem(revisionKey);
+   const response=await request();
+   if(!response.ok)throw Error('No se pudo consultar el contenido publicado.');
+   const current=await response.json();
+   revision=current.revision;
+   if(current.content&&String(revision)!==cachedRevision){
+    const previous=localStorage.getItem(storageKey);
+    if(previous&&!cachedRevision&&previous!==JSON.stringify(current.content)){
+     localStorage.setItem(storageKey+'-backup',previous);
+    }
+    localStorage.setItem(storageKey,JSON.stringify(current.content));
+    localStorage.setItem(revisionKey,String(revision));
+    location.reload();
+    return false;
+   }
+   return true;
+  }catch{
+   revision=undefined;
+   return true;
+  }finally{
+   document.documentElement.classList.remove('gacorp-loading-content');
+  }
+ }
+ const ready=load();
+ addEventListener('gacorp:logout',()=>{
+  editorKey=undefined;
+  try{sessionStorage.removeItem(accessKey);}catch{}
+ });
+ async function save(content){
+  if(!await ready||revision===undefined)throw Error('No se pudo conectar con el guardado compartido. Recarga la página y vuelve a intentarlo.');
+  try{editorKey??=sessionStorage.getItem(accessKey);}catch{}
+  if(!editorKey){
+   if(!window.Swal)throw Error('No se pudo abrir la pantalla de autorización. Inténtalo de nuevo.');
+   const result=await window.Swal.fire({
+    titleText:'Autorizar guardado compartido',input:'password',inputLabel:'Clave de edición',
+    inputAttributes:{autocomplete:'off'},showCancelButton:true,
+    confirmButtonText:'Autorizar',cancelButtonText:'Cancelar',
+    inputValidator:value=>value.trim()?undefined:'Ingresa la clave de edición.'
+   });
+   if(!result.isConfirmed)return false;
+   editorKey=result.value.trim();
+  }
+  const response=await request({
+   method:'PUT',
+   headers:{'Content-Type':'application/json','Authorization':'Bearer '+editorKey},
+   body:JSON.stringify({revision,content})
+  });
+  if(response.status===401){
+   editorKey=undefined;
+   try{sessionStorage.removeItem(accessKey);}catch{}
+   throw Error('La clave de edición es incorrecta.');
+  }
+  if(response.status===409)throw Error('Otra persona guardó cambios. Recarga antes de volver a editar.');
+  if(response.status===413)throw Error('El contenido supera el tamaño permitido. Reduce el tamaño de las imágenes.');
+  if(!response.ok)throw Error('No se pudieron guardar los cambios para los demás dispositivos.');
+  revision=(await response.json()).revision;
+  try{
+   sessionStorage.setItem(accessKey,editorKey);
+   localStorage.setItem(storageKey,JSON.stringify(content));
+   localStorage.setItem(revisionKey,String(revision));
+  }catch{}
+  return true;
+ }
+ return {ready,save};
+})();
 /* Inicio de sesión independiente: debe funcionar aunque falle algún módulo secundario. */
 (function(){
   const VALID_USER = 'Gacorp2026';
@@ -2379,6 +2460,7 @@ function gacorpConfirmDelete(title,text){
   }
   function logout(){
     try{sessionStorage.removeItem(sessionKey);}catch(e){}
+    window.dispatchEvent(new Event('gacorp:logout'));
     appShell.style.display = 'none';
     document.body.classList.remove('gacorp-authenticated');
     authGate.classList.remove('hidden');
@@ -3142,6 +3224,10 @@ navigate(document.getElementById('sec-'+startId) ? startId : 'inicio');
  editBtn.innerHTML=pencilIcon;
  editBtn.title='Editar información';
  editBtn.setAttribute('aria-label',editBtn.title);
+ if(gacorpContentSync){
+  editBtn.disabled=true;
+  gacorpContentSync.ready.then(ready=>{if(ready)editBtn.disabled=false;});
+ }
  const cancelBtn=document.createElement('button');
  cancelBtn.type='button';
  cancelBtn.className='gacorp-edit-cancel';
@@ -3570,8 +3656,14 @@ navigate(document.getElementById('sec-'+startId) ? startId : 'inicio');
    });
    const cards=Object.fromEntries([...cardGrids].map(([key,group])=>[key,readCards(group)]));
    const next={fields:{...readEdits().fields,...Object.fromEntries(drafts)},notes,images,imageReplacements:{...imageReplacements},cards,theme:structuredClone(theme)};
-   try{localStorage.setItem(storageKey,JSON.stringify(next));}
-   catch(e){await showSaveMessage('error','No se pudieron guardar los cambios en este navegador.');return;}
+   try{
+    if(gacorpContentSync){
+     if(!await gacorpContentSync.save(next))return;
+    }else localStorage.setItem(storageKey,JSON.stringify(next));
+   }catch(error){
+    await showSaveMessage('error',gacorpContentSync&&error instanceof Error?error.message:'No se pudieron guardar los cambios.');
+    return;
+   }
    saved=next;
    originalFields.clear();
    drafts.clear();
